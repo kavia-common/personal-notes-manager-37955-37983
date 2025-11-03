@@ -21,6 +21,7 @@
 #include <QScrollArea>
 #include <QStyle>
 #include <optional>
+#include <QRandomGenerator>
 
 // ========== ThemeManager ==========
 ThemeManager& ThemeManager::instance() {
@@ -201,7 +202,10 @@ QList<Note> NotesStorage::list(const QString& search, const QString& sortKey, bo
 }
 
 QString NotesStorage::generateId() const {
-    return QString::number(QDateTime::currentMSecsSinceEpoch()) + "-" + QString::number(qrand() % 100000);
+    // Combine current timestamp with a bounded random number for uniqueness.
+    // QRandomGenerator is the Qt6-compliant RNG; global() returns a thread-safe generator.
+    const quint32 rnd = QRandomGenerator::global()->bounded(100000u);
+    return QString::number(QDateTime::currentMSecsSinceEpoch()) + "-" + QString::number(rnd);
 }
 
 Note NotesStorage::upsert(const Note& note) {
