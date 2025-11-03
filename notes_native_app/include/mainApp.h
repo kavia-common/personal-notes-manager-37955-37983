@@ -171,7 +171,8 @@ public:
 
 signals:
     void backRequested();
-    void saved();
+    // Emitted after a note is created or updated; provides the saved note.
+    void saved(const Note& note);
 
 private slots:
     void onSave();

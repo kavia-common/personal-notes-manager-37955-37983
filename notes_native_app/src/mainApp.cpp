@@ -383,6 +383,7 @@ void NoteEditorWidget::loadNote(const QString& id) {
 }
 
 void NoteEditorWidget::onSave() {
+    // Build the note from UI inputs
     Note n;
     n.id = m_currentId;
     n.title = m_title->text();
@@ -393,9 +394,14 @@ void NoteEditorWidget::onSave() {
             n.tags << part.trimmed();
         }
     }
-    auto saved = m_storage->upsert(n);
-    m_currentId = saved.id;
-    emit saved();
+
+    // Persist via storage and receive the saved copy (with id/timestamps)
+    Note savedNote = m_storage->upsert(n);
+    m_currentId = savedNote.id;
+
+    // Emit signal with the saved note payload
+    emit saved(savedNote);
+
     QMessageBox::information(this, "Saved", "Your note has been saved.");
 }
 
@@ -407,7 +413,10 @@ void NoteEditorWidget::onDelete() {
     auto res = QMessageBox::question(this, "Delete note", "Are you sure you want to delete this note?");
     if (res == QMessageBox::Yes) {
         if (m_storage->remove(m_currentId)) {
-            emit saved();
+            // Emit a signal to inform list to refresh; provide a minimal note payload
+            Note deletedNote;
+            deletedNote.id = m_currentId;
+            emit saved(deletedNote);
             emit backRequested();
         } else {
             QMessageBox::warning(this, "Error", "Failed to delete the note.");
