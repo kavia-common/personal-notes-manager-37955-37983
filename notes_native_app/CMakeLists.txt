@@ -38,6 +38,6 @@ add_custom_target(run
     COMMENT "Running ${PROJECT_NAME}"
 )
 
+# Basic smoke test: launches and exits only when closed manually in CI this simply starts binary
 enable_testing()
-
 add_test(NAME ${PROJECT_NAME}Test COMMAND ${PROJECT_NAME})
